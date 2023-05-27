@@ -2,5 +2,5 @@
     <string name="app_name">Kwitansi Digital</string>
     <string name="title_home">Home</string>
     <string name="title_dashboard">Add</string>
-    <string name="title_notifications">About</string>
+    <string name="title_about">About</string>
 </resources>
