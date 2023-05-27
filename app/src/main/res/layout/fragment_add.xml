@@ -20,4 +20,75 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+
+    <LinearLayout
+        android:layout_marginTop="120sp"
+        android:layout_marginLeft="25sp"
+        android:layout_marginRight="25sp"
+        android:id="@+id/layout_input_data"
+        android:layout_width="match_parent"
+        android:orientation="vertical"
+        android:layout_height="wrap_content">
+
+
+
+
+        <LinearLayout
+            android:id="@+id/input_nama_pengirim"
+            android:layout_width="match_parent"
+            android:orientation="vertical"
+            android:layout_height="wrap_content">
+            <TextView
+                android:text="Telah Terima Dari"
+                android:textSize="16sp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+            </TextView>
+
+            <EditText
+                android:hint="Nama"
+                android:inputType="text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+            </EditText>
+        </LinearLayout>
+
+
+        <LinearLayout
+            android:id="@+id/input_banyak_uang"
+            android:layout_marginTop="5sp"
+            android:layout_width="match_parent"
+            android:orientation="vertical"
+            android:layout_height="wrap_content">
+
+
+            <EditText
+                android:hint="Nominal Terbilang"
+                android:inputType="textMultiLine"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+            </EditText>
+        </LinearLayout>
+
+
+        <LinearLayout
+            android:id="@+id/input_tujuan_pembayaran"
+            android:layout_marginTop="5sp"
+            android:layout_width="match_parent"
+            android:orientation="vertical"
+            android:layout_height="wrap_content">
+
+            <EditText
+                android:hint="Untuk Pembayaran"
+                android:inputType="textMultiLine"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+            </EditText>
+        </LinearLayout>
+
+
+
+
+    </LinearLayout>
+
 </RelativeLayout>

@@ -26,8 +26,8 @@ import com.kudig.kwitansidigital.databinding.ActivityMainBinding;
 public class MainActivity extends AppCompatActivity {
 
     private ActivityMainBinding binding;
+    private Button Home,About;
     private FloatingActionButton Add;
-    private BottomNavigationView navView;
 
 
     @Override
@@ -38,30 +38,36 @@ public class MainActivity extends AppCompatActivity {
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
+        Home = findViewById(R.id.btn_home);
         Add = findViewById(R.id.add_btn);
-
-        BottomNavigationView navView = findViewById(R.id.nav_view);
-        navView.setBackground(null);
-
-        Menu menu = navView.getMenu();
-        MenuItem menuItem = menu.getItem(1);
-        menuItem.setEnabled(false);
+        About = findViewById(R.id.btn_about);
 
         AppBarConfiguration appBarConfiguration = new AppBarConfiguration.Builder(
                 R.id.navigation_home, R.id.navigation_about)
                 .build();
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_activity_main);
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
-        NavigationUI.setupWithNavController(binding.navView, navController);
 
+        Home.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                navController.navigate(R.id.navigation_home);
+            }
+        });
         Add.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 navController.navigate(R.id.navigation_add);
-                menuItem.setChecked(false);
-                Add.clearFocus();
             }
         });
+        About.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                navController.navigate(R.id.navigation_about);
+            }
+        });
+
+
     }
 
 }
