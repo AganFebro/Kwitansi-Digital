@@ -10,6 +10,7 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
+import com.kudig.kwitansidigital.databinding.FragmentAddBinding;
 
 
 public class AddFragment extends Fragment {
@@ -24,7 +25,7 @@ public class AddFragment extends Fragment {
         binding = FragmentAddBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
 
-        final TextView textView = binding.textNotifications;
+        final TextView textView = binding.textAdd;
         AboutViewModel.getText().observe(getViewLifecycleOwner(), textView::setText);
         return root;
     }
