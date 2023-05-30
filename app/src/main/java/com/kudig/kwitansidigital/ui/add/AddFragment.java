@@ -17,15 +17,20 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
 import androidx.sqlite.db.SupportSQLiteDatabase;
 
+import com.kudig.kwitansidigital.KwitansiAdapter;
+import com.kudig.kwitansidigital.KwitansiDAO;
 import com.kudig.kwitansidigital.KwitansiDB;
 import com.kudig.kwitansidigital.KwitansiEntity;
 import com.kudig.kwitansidigital.R;
 import com.kudig.kwitansidigital.databinding.FragmentAddBinding;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -43,6 +48,12 @@ public class AddFragment extends Fragment {
 
     ListView list;
 
+    KwitansiDAO kwitansiDAO;
+
+    RecyclerView myRecycler;
+
+    KwitansiAdapter kwitansiAdapter;
+
     private FragmentAddBinding binding;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -58,6 +69,21 @@ public class AddFragment extends Fragment {
 
         save = (Button) view.findViewById(R.id.simpan);
         get = (Button) view.findViewById(R.id.get);
+        myRecycler = (RecyclerView) view.findViewById(R.id.kwitansiRecyclerr);
+
+        kwitansiAdapter = new KwitansiAdapter(requireContext());
+
+        myRecycler.setAdapter(kwitansiAdapter);
+        myRecycler.setLayoutManager(new LinearLayoutManager(requireContext()));
+
+
+        String nama = namaET.getText().toString();
+        String nominal = nominalET.getText().toString();
+        String deskripsi = deskripsiET.getText().toString();
+
+        KwitansiEntity kwitansi = new KwitansiEntity(nama, nominal, deskripsi);
+        kwitansiAdapter.addKwitansi(kwitansi);
+
 
         RoomDatabase.Callback myCallBack = new RoomDatabase.Callback() {
             @Override
@@ -71,8 +97,13 @@ public class AddFragment extends Fragment {
             }
         };
 
+
         KwitansiDB = Room.databaseBuilder(getContext(), KwitansiDB.class,
                 "KwitansiDB").addCallback(myCallBack).build();
+
+        kwitansiDAO = KwitansiDB.getKwitansiDAO();
+
+        KwitansiDB = KwitansiDB.getInstance(getContext());
 
         save.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -99,6 +130,7 @@ public class AddFragment extends Fragment {
 
         return view;
     }
+
 
     @Override
     public void onDestroyView() {
@@ -147,7 +179,7 @@ public class AddFragment extends Fragment {
                     @Override
                     public void run() {
                         StringBuilder sb = new StringBuilder();
-                        for(KwitansiEntity k : KwitansiList) {
+                        for (KwitansiEntity k : KwitansiList) {
                             sb.append(k.getNama() + " : " + k.getNominal() + " : " + k.getDeskripsi());
                             sb.append("\n");
                         }
@@ -157,5 +189,33 @@ public class AddFragment extends Fragment {
                 });
             }
         });
+    }
+
+    private void fetchData() {
+        ExecutorService executorService = Executors.newSingleThreadExecutor();
+        Handler handler = new Handler(Looper.getMainLooper());
+
+        executorService.execute(new Runnable() {
+            @Override
+            public void run() {
+                List<KwitansiEntity> kwitansiList = kwitansiDAO.getAllKwitansi();
+
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        for (KwitansiEntity kwitansi : kwitansiList) {
+                            kwitansiAdapter.addKwitansi(kwitansi);
+                        }
+                    }
+                });
+            }
+        });
+    }
+
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        fetchData();
     }
 }

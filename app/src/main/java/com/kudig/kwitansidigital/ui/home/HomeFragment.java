@@ -10,11 +10,19 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
+import com.kudig.kwitansidigital.KwitansiAdapter;
+import com.kudig.kwitansidigital.KwitansiDAO;
+import com.kudig.kwitansidigital.KwitansiDB;
 import com.kudig.kwitansidigital.databinding.FragmentHomeBinding;
 
 public class HomeFragment extends Fragment {
 
     private FragmentHomeBinding binding;
+
+    private KwitansiDB kwitansiDB;
+    private KwitansiDAO kwitansiDAO;
+
+    private KwitansiAdapter KwitansiAdapter;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {

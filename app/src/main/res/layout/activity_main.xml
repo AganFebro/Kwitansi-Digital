@@ -92,4 +92,10 @@
             app:layout_anchorGravity="bottom|end" />
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
+    <androidx.recyclerview.widget.RecyclerView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/kwitansiRecycler">
+    </androidx.recyclerview.widget.RecyclerView>
+
 </androidx.constraintlayout.widget.ConstraintLayout>
