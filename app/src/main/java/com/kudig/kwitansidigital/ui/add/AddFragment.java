@@ -18,7 +18,6 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
 import androidx.sqlite.db.SupportSQLiteDatabase;
@@ -41,18 +40,10 @@ public class AddFragment extends Fragment {
 
     EditText namaET, nominalET, deskripsiET;
     Button save, get;
-
     KwitansiDB KwitansiDB;
-
     List<KwitansiEntity> KwitansiList;
-
     ListView list;
-
     KwitansiDAO kwitansiDAO;
-
-    RecyclerView myRecycler;
-
-    KwitansiAdapter kwitansiAdapter;
 
     private FragmentAddBinding binding;
 
@@ -68,21 +59,12 @@ public class AddFragment extends Fragment {
         deskripsiET = (EditText) view.findViewById(R.id.input_deskripsi);
 
         save = (Button) view.findViewById(R.id.simpan);
-        get = (Button) view.findViewById(R.id.get);
-        myRecycler = (RecyclerView) view.findViewById(R.id.kwitansiRecyclerr);
-
-        kwitansiAdapter = new KwitansiAdapter(requireContext());
-
-        myRecycler.setAdapter(kwitansiAdapter);
-        myRecycler.setLayoutManager(new LinearLayoutManager(requireContext()));
-
 
         String nama = namaET.getText().toString();
         String nominal = nominalET.getText().toString();
         String deskripsi = deskripsiET.getText().toString();
 
         KwitansiEntity kwitansi = new KwitansiEntity(nama, nominal, deskripsi);
-        kwitansiAdapter.addKwitansi(kwitansi);
 
 
         RoomDatabase.Callback myCallBack = new RoomDatabase.Callback() {
@@ -112,16 +94,14 @@ public class AddFragment extends Fragment {
                 String nominal = nominalET.getText().toString();
                 String deskripsi = deskripsiET.getText().toString();
 
-                KwitansiEntity k1 = new KwitansiEntity(nama, nominal, deskripsi);
+                if (nama.isEmpty() || nominal.isEmpty() || deskripsi.isEmpty()) {
+                    // Salah satu atau lebih EditText kosong, berikan pesan kesalahan
+                    Toast.makeText(requireContext(), "Harap isi semua data", Toast.LENGTH_SHORT).show();
+                } else {
+                    KwitansiEntity k1 = new KwitansiEntity(nama, nominal, deskripsi);
 
-                addKwitansiInBackground(k1);
-            }
-        });
-
-        get.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                getKwitansiListInBackground();
+                    addKwitansiInBackground(k1);
+                }
             }
         });
 
@@ -154,7 +134,7 @@ public class AddFragment extends Fragment {
                 handler.post(new Runnable() {
                     @Override
                     public void run() {
-                        Toast.makeText(getContext(), "Berhasil Disimpan ke DB!", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getContext(), "Kwitansi Berhasil Dibuat", Toast.LENGTH_SHORT).show();
                     }
                 });
 
@@ -191,31 +171,5 @@ public class AddFragment extends Fragment {
         });
     }
 
-    private void fetchData() {
-        ExecutorService executorService = Executors.newSingleThreadExecutor();
-        Handler handler = new Handler(Looper.getMainLooper());
 
-        executorService.execute(new Runnable() {
-            @Override
-            public void run() {
-                List<KwitansiEntity> kwitansiList = kwitansiDAO.getAllKwitansi();
-
-                handler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        for (KwitansiEntity kwitansi : kwitansiList) {
-                            kwitansiAdapter.addKwitansi(kwitansi);
-                        }
-                    }
-                });
-            }
-        });
-    }
-
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        fetchData();
-    }
 }

@@ -3,10 +3,8 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_marginLeft="25dp"
-    android:layout_marginTop="20dp"
-    android:layout_marginRight="25dp"
-    android:layout_marginBottom="20dp"
+    android:layout_marginTop="10dp"
+    android:layout_marginBottom="30dp"
     android:gravity="center_horizontal"
     android:orientation="vertical">
     <LinearLayout
@@ -14,7 +12,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:background="@drawable/outline_kotak"
+        android:background="@drawable/outline_kotak_tombol"
         android:paddingHorizontal="15sp"
         android:paddingTop="10dp"
         android:paddingBottom="15dp">
@@ -66,6 +64,32 @@
                 android:textColor="@color/black">
             </TextView>
         </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal">
+            <TextView
+                android:layout_width="120dp"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="0dp"
+                android:layout_marginTop="4dp"
+                android:text="Nominal"
+                android:textColor="@color/black"
+                android:textStyle="bold">
+            </TextView>
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/nominal_kwitansi"
+                android:layout_marginLeft="20dp"
+                android:layout_marginTop="4dp"
+                android:layout_marginRight="1dp"
+                android:text="Nominal"
+                android:textColor="@color/black">
+            </TextView>
+        </LinearLayout>
+
 
         <LinearLayout
             android:layout_width="match_parent"

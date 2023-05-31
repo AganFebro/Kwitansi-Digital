@@ -65,7 +65,7 @@
 
 
             <EditText
-                android:hint="Nominal Terbilang"
+                android:hint="Nominal Uang"
                 android:id="@+id/input_nominal"
                 android:textSize="16sp"
                 android:inputType="textMultiLine"
@@ -93,25 +93,13 @@
         </LinearLayout>
 
         <Button
+            android:layout_marginTop="25sp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:textSize="16sp"
             android:text="Simpan Data"
             android:id="@+id/simpan">
         </Button>
-
-        <Button
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Get Data"
-            android:id="@+id/get">
-        </Button>
-
-        <androidx.recyclerview.widget.RecyclerView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/kwitansiRecyclerr">
-        </androidx.recyclerview.widget.RecyclerView>
-
 
 
     </LinearLayout>

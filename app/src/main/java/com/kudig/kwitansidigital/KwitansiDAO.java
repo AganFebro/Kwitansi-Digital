@@ -18,7 +18,7 @@ public interface KwitansiDAO {
     public void updateKwitansi(KwitansiEntity kwitansi);
 
     @Delete
-    public void deleteKwitansi(KwitansiEntity kwitansi);
+    void deleteKwitansi(KwitansiEntity kwitansi);
 
     @Query("select * from kwitansi")
     public List<KwitansiEntity> getAllKwitansi();

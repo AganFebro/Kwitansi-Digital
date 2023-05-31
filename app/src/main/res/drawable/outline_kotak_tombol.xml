@@ -1,0 +1,41 @@
+<ripple xmlns:android="http://schemas.android.com/apk/res/android"
+    android:color="@color/duit">
+
+    <item android:id="@android:id/background">
+        <shape android:shape="rectangle">
+            <!-- Warna latar belakang saat tombol dilepas -->
+            <solid android:color="@color/light_gray" />
+
+            <!-- Sudut melengkung -->
+            <corners android:radius="8dp" />
+
+            <!-- Stroke hitam dengan ketebalan 1dp -->
+            <stroke
+                android:width="1dp"
+                android:color="@android:color/black" />
+        </shape>
+    </item>
+
+    <item android:id="@android:id/mask">
+        <shape android:shape="rectangle">
+            <!-- Warna latar belakang saat tombol ditekan -->
+            <solid android:color="@color/duit" />
+
+            <!-- Sudut melengkung -->
+            <corners android:radius="8dp" />
+
+            <!-- Stroke hitam dengan ketebalan 1dp -->
+            <stroke
+                android:width="1dp"
+                android:color="@android:color/black" />
+
+            <!-- Efek popup -->
+            <padding
+                android:left="10dp"
+                android:top="10dp"
+                android:right="10dp"
+                android:bottom="10dp" />
+        </shape>
+    </item>
+
+</ripple>
