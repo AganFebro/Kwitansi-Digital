@@ -48,7 +48,7 @@
                 android:layout_width="120dp"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="0dp"
-                android:layout_marginTop="7dp"
+                android:layout_marginTop="10dp"
                 android:text="Terima Dari"
                 android:textColor="@color/black"
                 android:textStyle="bold">
@@ -58,9 +58,33 @@
                 android:layout_height="wrap_content"
                 android:id="@+id/nama_pengirim"
                 android:layout_marginLeft="20dp"
-                android:layout_marginTop="7dp"
+                android:layout_marginTop="10dp"
                 android:layout_marginRight="1dp"
-                android:text="Nama"
+                android:text="Nama Pengirim"
+                android:textColor="@color/black">
+            </TextView>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+            <TextView
+                android:layout_width="120dp"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="0dp"
+                android:layout_marginTop="10dp"
+                android:text="Penerima"
+                android:textColor="@color/black"
+                android:textStyle="bold">
+            </TextView>
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/nama_penerima"
+                android:layout_marginLeft="20dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginRight="1dp"
+                android:text="Nama Penerima"
                 android:textColor="@color/black">
             </TextView>
         </LinearLayout>
@@ -73,7 +97,7 @@
                 android:layout_width="120dp"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="0dp"
-                android:layout_marginTop="4dp"
+                android:layout_marginTop="10dp"
                 android:text="Nominal"
                 android:textColor="@color/black"
                 android:textStyle="bold">
@@ -83,7 +107,7 @@
                 android:layout_height="wrap_content"
                 android:id="@+id/nominal_kwitansi"
                 android:layout_marginLeft="20dp"
-                android:layout_marginTop="4dp"
+                android:layout_marginTop="10dp"
                 android:layout_marginRight="1dp"
                 android:text="Nominal"
                 android:textColor="@color/black">
@@ -98,7 +122,7 @@
                 android:layout_width="120dp"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="0dp"
-                android:layout_marginTop="7dp"
+                android:layout_marginTop="10dp"
                 android:text="Untuk Pembayaran"
                 android:textColor="@color/black"
                 android:textSize="14sp"
@@ -109,7 +133,7 @@
                 android:layout_height="wrap_content"
                 android:id="@+id/deskripsi"
                 android:layout_marginLeft="20dp"
-                android:layout_marginTop="7dp"
+                android:layout_marginTop="10dp"
                 android:layout_marginRight="1dp"
                 android:text="Untuk Pembayaran"
                 android:textColor="@color/black">

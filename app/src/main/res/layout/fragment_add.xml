@@ -46,8 +46,26 @@
             </TextView>
 
             <EditText
-                android:hint="Nama"
-                android:id="@+id/input_nama"
+                android:hint="ID"
+                android:id="@+id/input_id"
+                android:textSize="16sp"
+                android:inputType="text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+            </EditText>
+
+            <EditText
+                android:hint="Terima Dari"
+                android:id="@+id/input_nama_terimadari"
+                android:textSize="16sp"
+                android:inputType="text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+            </EditText>
+
+            <EditText
+                android:hint="Penerima"
+                android:id="@+id/input_nama_penerima"
                 android:textSize="16sp"
                 android:inputType="text"
                 android:layout_width="match_parent"
@@ -100,6 +118,16 @@
             android:text="Simpan Data"
             android:id="@+id/simpan">
         </Button>
+
+        <Button
+            android:layout_marginTop="25sp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="16sp"
+            android:text="Test Print"
+            android:id="@+id/print">
+        </Button>
+
 
 
     </LinearLayout>

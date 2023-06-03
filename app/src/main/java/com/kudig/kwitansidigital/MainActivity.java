@@ -37,6 +37,11 @@ public class MainActivity extends AppCompatActivity {
     private Button Home,About;
     private FloatingActionButton Add;
 
+    public static final int PERMISSION_BLUETOOTH = 1;
+    public static final int PERMISSION_BLUETOOTH_ADMIN = 1;
+    public static final int PERMISSION_BLUETOOTH_CONNECT = 1;
+    public static final int PERMISSION_BLUETOOTH_SCAN = 1;
+
     KwitansiDB KwitansiDB;
 
     List<KwitansiEntity> KwitansiList;

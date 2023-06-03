@@ -11,11 +11,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
@@ -73,6 +76,7 @@ public class KwitansiAdapter extends RecyclerView.Adapter<KwitansiAdapter.MyView
     public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
         KwitansiEntity Kwitansi = KwitansiList.get(position);
         holder.nama_pengirim.setText(Kwitansi.getNama());
+        holder.nama_penerima.setText(Kwitansi.getNama_penerima());
         holder.nominal_kwitansi.setText(Kwitansi.getNominal());
         holder.deskripsi.setText(Kwitansi.getDeskripsi());
 
@@ -88,7 +92,50 @@ public class KwitansiAdapter extends RecyclerView.Adapter<KwitansiAdapter.MyView
                     public void onClick(DialogInterface dialog, int i) {
                         switch (i) {
                             case 0:
-                                Toast.makeText(context, "Test asdasd asd asda", Toast.LENGTH_SHORT).show();
+                                View editPopupView = LayoutInflater.from(context).inflate(R.layout.popup_edit_data, null);
+                                EditText editTextDataNamaPengirim = editPopupView.findViewById(R.id.edit_text_DataNamaPengirim);
+                                EditText editTextDataNamaPenerima = editPopupView.findViewById(R.id.edit_text_DataNamaPenerima);
+                                EditText editTextDataNominal = editPopupView.findViewById(R.id.edit_text_DataNominal);
+                                EditText editTextDataDeskripsi = editPopupView.findViewById(R.id.edit_text_DataDeskripsi);
+
+                                // Mengisi nilai awal EditText dengan data yang ada di ViewHolder
+                                editTextDataNamaPengirim.setText(KwitansiList.get(holder.getAdapterPosition()).getNama());
+                                editTextDataNamaPenerima.setText(KwitansiList.get(holder.getAdapterPosition()).getNama_penerima());
+                                editTextDataNominal.setText(KwitansiList.get(holder.getAdapterPosition()).getNominal());
+                                editTextDataDeskripsi.setText(KwitansiList.get(holder.getAdapterPosition()).getDeskripsi());
+
+                                AlertDialog.Builder editPopupBuilder = new AlertDialog.Builder(context);
+                                editPopupBuilder.setTitle("Edit Data");
+                                editPopupBuilder.setView(editPopupView);
+                                editPopupBuilder.setPositiveButton("Simpan", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        // Mendapatkan data yang diubah dari EditText
+                                        String editedDataNama = editTextDataNamaPengirim.getText().toString();
+                                        String editedDataNamaPenerima = editTextDataNamaPenerima.getText().toString();
+                                        String editedDataNominal = editTextDataNominal.getText().toString();
+                                        String editedDataDeskripsi = editTextDataDeskripsi.getText().toString();
+
+                                        // Mengubah nilai data di ViewHolder
+                                        KwitansiList.get(holder.getAdapterPosition()).setNama(editedDataNama);
+                                        KwitansiList.get(holder.getAdapterPosition()).setNama(editedDataNamaPenerima);
+                                        KwitansiList.get(holder.getAdapterPosition()).setNominal(editedDataNominal);
+                                        KwitansiList.get(holder.getAdapterPosition()).setDeskripsi(editedDataDeskripsi);
+
+
+                                        notifyDataSetChanged();
+                                        Toast.makeText(context, "Data berhasil diedit", Toast.LENGTH_SHORT).show();
+                                    }
+                                });
+                                editPopupBuilder.setNegativeButton("Batal", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        dialog.dismiss();
+                                    }
+                                });
+
+                                AlertDialog editPopupDialog = editPopupBuilder.create();
+                                editPopupDialog.show();
                                 break;
 
                             case 1:
@@ -127,18 +174,18 @@ public class KwitansiAdapter extends RecyclerView.Adapter<KwitansiAdapter.MyView
         holder.ListKwitansi.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                AlertDialog.Builder builder = new AlertDialog.Builder(v.getContext());
-                builder.setTitle("Data Detail");
-                builder.setMessage("Nama      : " + Kwitansi.nama + "\nNominal  : " + Kwitansi.nominal + "\nDeskripsi : " + Kwitansi.deskripsi);
-                builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        // Tindakan yang ingin dilakukan ketika pengguna mengklik tombol OK
-                        dialog.dismiss();
-                    }
-                });
-                AlertDialog alertDialog = builder.create();
-                alertDialog.show();
+                int position = holder.getAdapterPosition();
+                if (position != RecyclerView.NO_POSITION) {
+
+                    Bundle bundle = new Bundle();
+                    bundle.putString("DataNamaPengirim", KwitansiList.get(position).getNama());
+                    bundle.putString("DataNamaPenerima", KwitansiList.get(position).getNama_penerima());
+                    bundle.putString("DataNominal", KwitansiList.get(position).getNominal());
+                    bundle.putString("DataDeskripsi", KwitansiList.get(position).getDeskripsi());
+
+                    NavController navController = Navigation.findNavController(v);
+                    navController.navigate(R.id.navigation_preview, bundle);
+                }
             }
         });
 
@@ -150,13 +197,14 @@ public class KwitansiAdapter extends RecyclerView.Adapter<KwitansiAdapter.MyView
     }
 
     public class MyViewHolder extends RecyclerView.ViewHolder {
-        private TextView nominal_kwitansi, nama_pengirim, deskripsi;
+        private TextView nominal_kwitansi, nama_pengirim, nama_penerima, deskripsi;
         private LinearLayout ListKwitansi;
 
         public MyViewHolder(@NonNull View itemView) {
             super(itemView);
             nominal_kwitansi = itemView.findViewById(R.id.nominal_kwitansi);
             nama_pengirim = itemView.findViewById(R.id.nama_pengirim);
+            nama_penerima = itemView.findViewById(R.id.nama_penerima);
             deskripsi = itemView.findViewById(R.id.deskripsi);
             ListKwitansi = itemView.findViewById(R.id.list_item);
         }
