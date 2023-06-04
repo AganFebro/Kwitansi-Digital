@@ -21,6 +21,14 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
+// DEPRECATED
+// DEPRECATED
+// DEPRECATED
+// DEPRECATED
+// DEPRECATED
+// DEPRECATED
+// DEPRECATED
+
 public class PDFGenerator {
     public static void generatePDF(Context context, View view, String fileName) {
         Document document = new Document();
@@ -37,22 +45,35 @@ public class PDFGenerator {
             // Convert the layout XML to a Bitmap
             Bitmap bitmap = viewToBitmap(context, view);
 
-            // Add the Bitmap to the PDF document
-            com.itextpdf.text.Image image = com.itextpdf.text.Image.getInstance(bitmapToByteArray(bitmap));
+            int documentWidth = (int) (document.getPageSize().getWidth() - document.leftMargin() - document.rightMargin());
+            int documentHeight = (int) (document.getPageSize().getHeight() - document.topMargin() - document.bottomMargin());
+            float scaleX = (float) documentWidth / bitmap.getWidth();
+            float scaleY = (float) documentHeight / bitmap.getHeight();
+            float scale = Math.min(scaleX, scaleY);
+
+
+            // Scale the Bitmap
+            Bitmap scaledBitmap = Bitmap.createScaledBitmap(bitmap,
+                    (int) (bitmap.getWidth() * scale),
+                    (int) (bitmap.getHeight() * scale),
+                    true);
+
+            // Add the scaled Bitmap to the PDF document
+            com.itextpdf.text.Image image = com.itextpdf.text.Image.getInstance(bitmapToByteArray(scaledBitmap));
             image.setAlignment(Element.ALIGN_CENTER);
             document.add(image);
 
-            document.close();
+            // ...
 
-            Log.d("PDFGenerator", "PDF generated successfully.");
         } catch (DocumentException | IOException e) {
             e.printStackTrace();
         }
+
     }
 
     private static Bitmap viewToBitmap(Context context, View view) {
         FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(
-                FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.WRAP_CONTENT);
+                FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT);
         view.setLayoutParams(layoutParams);
         view.measure(View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED),
                 View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED));
@@ -69,6 +90,7 @@ public class PDFGenerator {
         }
         view.draw(canvas);
         return bitmap;
+
     }
 
     private static byte[] bitmapToByteArray(Bitmap bitmap) {

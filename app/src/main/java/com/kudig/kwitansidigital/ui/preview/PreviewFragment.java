@@ -2,19 +2,27 @@ package com.kudig.kwitansidigital.ui.preview;
 
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
+import android.bluetooth.BluetoothClass;
+import android.bluetooth.BluetoothDevice;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
+import android.graphics.pdf.PdfDocument;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Paint;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -35,8 +43,10 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.dantsu.escposprinter.EscPosPrinter;
+import com.dantsu.escposprinter.connection.DeviceConnection;
 import com.dantsu.escposprinter.connection.bluetooth.BluetoothConnection;
 import com.dantsu.escposprinter.connection.bluetooth.BluetoothPrintersConnections;
+import com.dantsu.escposprinter.exceptions.EscPosConnectionException;
 import com.itextpdf.text.Document;
 import com.itextpdf.text.DocumentException;
 import com.itextpdf.text.Element;
@@ -55,6 +65,7 @@ import java.io.IOException;
 import java.text.DateFormat;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 
@@ -65,6 +76,8 @@ public class PreviewFragment extends Fragment {
     private KwitansiDB kwitansiDB;
     private KwitansiDAO kwitansiDAO;
     private KwitansiEntity kwitansiEntity;
+    Bitmap bitmap;
+    LinearLayout linearLayout;
 
     public PreviewFragment() {
     }
@@ -87,6 +100,7 @@ public class PreviewFragment extends Fragment {
         textNominal = view.findViewById(R.id.text_nominal);
         textDeskripsi = view.findViewById(R.id.text_deskripsi);
         textTerbilang = view.findViewById(R.id.text_terbilang);
+        linearLayout = view.findViewById ( R.id.lld );
 
         viewModel = new ViewModelProvider(this).get(PreviewViewModel.class);
         kwitansiDB = KwitansiDB.getInstance(requireContext());
@@ -125,8 +139,12 @@ public class PreviewFragment extends Fragment {
             } else {
                 double nominalValue = Double.parseDouble(nominal);
                 String nominalTerbilang = convertToTerbilang(nominalValue);
-                BluetoothConnection connection = BluetoothPrintersConnections.selectFirstPaired();
-                if (connection != null) {
+                BluetoothPrintersConnections printers = new BluetoothPrintersConnections();
+                BluetoothConnection[] connections = printers.getList();
+                if (connections != null) {
+                    // Print Berdasarkan Array List Bluetooth Pertama
+                    BluetoothConnection hadeh = connections[0];
+                    DeviceConnection connection = new BluetoothConnection(hadeh.getDevice());
                     EscPosPrinter printer = new EscPosPrinter(connection, 203, 48f, 32);
                     final String text =
                             "[L]\n" +
@@ -155,8 +173,9 @@ public class PreviewFragment extends Fragment {
                                     "[C]https://chat.openai.com\n";
 
                     printer.printFormattedText(text);
+                    Toast.makeText(getContext(), "Berhasil print!", Toast.LENGTH_SHORT).show();
                 } else {
-                    Toast.makeText(getContext(), "No printer was connected!", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getContext(), "Tidak ada printer yang terpairing!", Toast.LENGTH_SHORT).show();
                 }
             }
         } catch (Exception e) {
@@ -194,6 +213,68 @@ public class PreviewFragment extends Fragment {
         return null;
     }
 
+    private void createPdf() {
+        DisplayMetrics displayMetrics = new DisplayMetrics();
+        getActivity().getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+        int convertHeight = displayMetrics.heightPixels;
+        int convertWidth = displayMetrics.widthPixels;
+
+        PdfDocument document = new PdfDocument();
+        PdfDocument.PageInfo pageInfo = new PdfDocument.PageInfo.Builder(convertWidth, convertHeight, 1).create();
+        PdfDocument.Page page = document.startPage(pageInfo);
+
+        Canvas canvas = page.getCanvas();
+        Paint paint = new Paint();
+        canvas.drawPaint(paint);
+        bitmap = Bitmap.createScaledBitmap(bitmap, convertWidth, convertHeight, true);
+        canvas.drawBitmap(bitmap, 0, 0, null);
+        document.finishPage(page);
+
+
+        Calendar instance = Calendar.getInstance ();
+        String format = new SimpleDateFormat ( "MM/dd/yyyy", Locale.getDefault () ).format ( instance.getTime () );
+        String format2 = new SimpleDateFormat ( "HH:mm:ss", Locale.getDefault () ).format ( instance.getTime () );
+        String[] split = format.split ( "/" );
+        String[] split2 = format2.split ( ":" );
+        String str = (split[0] + split[1] + split[2]) + (split2[0] + split2[1] + split2[2]) + "_course code";
+        //pdf download location
+        File directory = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+        if (directory != null && !directory.exists()) {
+            directory.mkdirs();
+        }
+        String targetPdf = directory.getAbsolutePath() + File.separator + str + ".pdf";
+        File file = new File(targetPdf);
+        try {
+            document.writeTo(new FileOutputStream(file));
+            Toast.makeText(getContext(), "PDF saved: " + targetPdf, Toast.LENGTH_SHORT).show();
+        } catch (IOException e) {
+            e.printStackTrace();
+            Toast.makeText(getContext(), "Something went wrong. Please try again.", Toast.LENGTH_SHORT).show();
+        }
+
+        //close document
+        document.close ();
+        //progress bar
+        ProgressDialog progressDialog;
+        progressDialog = new ProgressDialog ( getContext() );
+        progressDialog.setMessage ( "Saving..." + targetPdf );
+        progressDialog.show ();
+        //time after cancel
+        new Handler().postDelayed (new Runnable () {
+            @Override
+            public void run() {
+                progressDialog.cancel ();
+            }
+        }, 5000 );
+    }
+
+    private Bitmap loadBitmapFromView(LinearLayout linearLayout, int width, int height) {
+        bitmap = Bitmap.createBitmap ( width, height, Bitmap.Config.ARGB_8888 );
+        Canvas canvas = new Canvas ( bitmap );
+        linearLayout.draw ( canvas );
+        return bitmap;
+    }
+
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.menu_preview, menu);
@@ -215,21 +296,17 @@ public class PreviewFragment extends Fragment {
         saveMenuItem.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
-                // Call PDFGenerator to generate PDF
-                ViewGroup.LayoutParams layoutParams = null;
-                if (getView() instanceof FrameLayout) {
-                    layoutParams = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-                } else if (getView() instanceof LinearLayout) {
-                    layoutParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-                }
-
-                PDFGenerator.generatePDF(requireContext(), getView(), "filename");
+                Log.d ( "size", linearLayout.getWidth () + " " + linearLayout.getHeight () );
+                bitmap = loadBitmapFromView ( linearLayout, linearLayout.getWidth (), linearLayout.getHeight () );
+                createPdf ();
                 return true;
             }
         });
 
         super.onCreateOptionsMenu(menu, inflater);
     }
+
+
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
