@@ -10,6 +10,7 @@ import android.bluetooth.BluetoothClass;
 import android.bluetooth.BluetoothDevice;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.graphics.pdf.PdfDocument;
@@ -18,10 +19,13 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
+import android.provider.Settings;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -37,10 +41,16 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.room.Room;
 
 import com.dantsu.escposprinter.EscPosPrinter;
 import com.dantsu.escposprinter.connection.DeviceConnection;
@@ -61,12 +71,15 @@ import com.kudig.kwitansidigital.R;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 
 public class PreviewFragment extends Fragment {
@@ -78,6 +91,7 @@ public class PreviewFragment extends Fragment {
     private KwitansiEntity kwitansiEntity;
     Bitmap bitmap;
     LinearLayout linearLayout;
+    private static final int STORAGE_PERMISSION_CODE = 100;
 
     public PreviewFragment() {
     }
@@ -100,7 +114,7 @@ public class PreviewFragment extends Fragment {
         textNominal = view.findViewById(R.id.text_nominal);
         textDeskripsi = view.findViewById(R.id.text_deskripsi);
         textTerbilang = view.findViewById(R.id.text_terbilang);
-        linearLayout = view.findViewById ( R.id.lld );
+        linearLayout = view.findViewById(R.id.lld);
 
         viewModel = new ViewModelProvider(this).get(PreviewViewModel.class);
         kwitansiDB = KwitansiDB.getInstance(requireContext());
@@ -153,20 +167,20 @@ public class PreviewFragment extends Fragment {
                                     "[L]NO." + id + "\n" +
                                     "[C]--------------------------------\n" +
                                     "[L]<b>TERIMA DARI      :</b>\n" +
-                                    "[L]"+ namaPengirim + "\n" +
+                                    "[L]" + namaPengirim + "\n" +
                                     "[L]<b>UANG SEJUMLAH    :<b>\n" +
-                                    "[L]"+ nf.format(Integer.parseInt(nominal)) +"\n" +
+                                    "[L]" + nf.format(Integer.parseInt(nominal)) + "\n" +
                                     "[L]<b>UNTUK PEMBAYARAN :<b>\n" +
-                                    "[L]"+ deskripsi + "\n" +
+                                    "[L]" + deskripsi + "\n" +
                                     "[C]--------------------------------\n" +
                                     "[L]<b>TERBILANG        :<b>\n" +
-                                    "[L]"+ nominalTerbilang + "\n" +
+                                    "[L]" + nominalTerbilang + "\n" +
                                     "[C]--------------------------------\n" +
                                     "[L]\n" +
                                     "[L]\n" +
                                     "[L]\n" +
                                     "[L]\n" +
-                                    "[R]"+ namaPenerima + "\n" +
+                                    "[R]" + namaPenerima + "\n" +
                                     "[C]================================\n" +
                                     "[L]\n" +
                                     "[C]" + df.format(new Date()) + "\n" +
@@ -231,12 +245,12 @@ public class PreviewFragment extends Fragment {
         document.finishPage(page);
 
 
-        Calendar instance = Calendar.getInstance ();
-        String format = new SimpleDateFormat ( "MM/dd/yyyy", Locale.getDefault () ).format ( instance.getTime () );
-        String format2 = new SimpleDateFormat ( "HH:mm:ss", Locale.getDefault () ).format ( instance.getTime () );
-        String[] split = format.split ( "/" );
-        String[] split2 = format2.split ( ":" );
-        String str = (split[0] + split[1] + split[2]) + (split2[0] + split2[1] + split2[2]) + "_course code";
+        Calendar instance = Calendar.getInstance();
+        String format = new SimpleDateFormat("MM/dd/yyyy", Locale.getDefault()).format(instance.getTime());
+        String format2 = new SimpleDateFormat("HH:mm:ss", Locale.getDefault()).format(instance.getTime());
+        String[] split = format.split("/");
+        String[] split2 = format2.split(":");
+        String str = (split[0] + split[1] + split[2]) + (split2[0] + split2[1] + split2[2]) + "_Kwitansi";
         //pdf download location
         File directory = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
         if (directory != null && !directory.exists()) {
@@ -253,25 +267,25 @@ public class PreviewFragment extends Fragment {
         }
 
         //close document
-        document.close ();
+        document.close();
         //progress bar
         ProgressDialog progressDialog;
-        progressDialog = new ProgressDialog ( getContext() );
-        progressDialog.setMessage ( "Saving..." + targetPdf );
-        progressDialog.show ();
+        progressDialog = new ProgressDialog(getContext());
+        progressDialog.setMessage("Saving..." + targetPdf);
+        progressDialog.show();
         //time after cancel
-        new Handler().postDelayed (new Runnable () {
+        new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
-                progressDialog.cancel ();
+                progressDialog.cancel();
             }
-        }, 5000 );
+        }, 5000);
     }
 
     private Bitmap loadBitmapFromView(LinearLayout linearLayout, int width, int height) {
-        bitmap = Bitmap.createBitmap ( width, height, Bitmap.Config.ARGB_8888 );
-        Canvas canvas = new Canvas ( bitmap );
-        linearLayout.draw ( canvas );
+        bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(bitmap);
+        linearLayout.draw(canvas);
         return bitmap;
     }
 
@@ -296,16 +310,24 @@ public class PreviewFragment extends Fragment {
         saveMenuItem.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
-                Log.d ( "size", linearLayout.getWidth () + " " + linearLayout.getHeight () );
-                bitmap = loadBitmapFromView ( linearLayout, linearLayout.getWidth (), linearLayout.getHeight () );
-                createPdf ();
+                Log.d("size", linearLayout.getWidth() + " " + linearLayout.getHeight());
+                bitmap = loadBitmapFromView(linearLayout, linearLayout.getWidth(), linearLayout.getHeight());
+                createPdf();
+                return true;
+            }
+        });
+
+        MenuItem shareMenuItem = menu.findItem(R.id.menu_item_share);
+        shareMenuItem.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                performExportCSV();
                 return true;
             }
         });
 
         super.onCreateOptionsMenu(menu, inflater);
     }
-
 
 
     @Override
@@ -376,5 +398,51 @@ public class PreviewFragment extends Fragment {
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+
+    private void performExportCSV() {
+        File downloadsDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+        if (!downloadsDir.exists()) {
+            if (!downloadsDir.mkdirs()) {
+                Toast.makeText(getContext(), "Failed to create Downloads directory", Toast.LENGTH_SHORT).show();
+                return;
+            }
+        }
+
+        // Specify the file path and name
+        String csvFileName = "RoomDB_Backup.csv";
+        File file = new File(downloadsDir, csvFileName);
+        String filePathAndName = file.getAbsolutePath();
+
+
+        ArrayList<KwitansiEntity> recordsList = new ArrayList<>();
+        recordsList.clear();
+
+        KwitansiDB db = Room.databaseBuilder(getContext(), KwitansiDB.class, "KwitansiDB")
+                .allowMainThreadQueries().build();
+
+        KwitansiDAO kwitansiDAO = db.getKwitansiDAO();
+        List<KwitansiEntity> kwitansiList = kwitansiDAO.getAllKwitansi();
+        recordsList = new ArrayList<>(kwitansiList);
+
+        try {
+            FileWriter fileWriter = new FileWriter(filePathAndName);
+            for (int i = 0; i < recordsList.size(); i++) {
+                fileWriter.append("" + recordsList.get(i).getNama());
+                fileWriter.append(",");
+                fileWriter.append("" + recordsList.get(i).getNama_penerima());
+                fileWriter.append(",");
+                fileWriter.append("" + recordsList.get(i).getNominal());
+                fileWriter.append(",");
+                fileWriter.append("" + recordsList.get(i).getDeskripsi());
+                fileWriter.append("\n");
+            }
+            fileWriter.flush();
+            fileWriter.close();
+            Toast.makeText(getContext(), "Backup Berhasil di Export ke " + filePathAndName, Toast.LENGTH_SHORT).show();
+        } catch (Exception e) {
+            Toast.makeText(getContext(), "" + e.getMessage(), Toast.LENGTH_SHORT).show();
+        }
     }
 }

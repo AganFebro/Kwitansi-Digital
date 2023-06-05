@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.DisplayMetrics;
@@ -41,9 +42,11 @@ import com.dantsu.escposprinter.EscPosPrinter;
 import com.dantsu.escposprinter.connection.bluetooth.BluetoothConnection;
 import com.dantsu.escposprinter.connection.bluetooth.BluetoothPrintersConnections;
 import com.dantsu.escposprinter.textparser.PrinterTextParserImg;
+import com.opencsv.CSVReader;
 import com.wendyliga.terbilang.terbilang;
 
 import java.io.File;
+import java.io.FileReader;
 import java.text.DateFormat;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
@@ -109,7 +112,7 @@ public class AddFragment extends Fragment {
 
 
         KwitansiDB = Room.databaseBuilder(getContext(), KwitansiDB.class,
-                "KwitansiDB").addCallback(myCallBack).build();
+                getContext().getExternalFilesDir(null) + "/databases/KwitansiDB").addCallback(myCallBack).build();
 
         kwitansiDAO = KwitansiDB.getKwitansiDAO();
 
@@ -138,13 +141,7 @@ public class AddFragment extends Fragment {
         print.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                String id = idET.getText().toString();
-                String nama = namaET.getText().toString();
-                String nama1 = nama1ET.getText().toString();
-                String nominal = nominalET.getText().toString();
-                String deskripsi = deskripsiET.getText().toString();
-
-                doPrint(view, id, nama, nama1, nominal, deskripsi);
+                importCSV();
             }
         });
 
@@ -159,6 +156,33 @@ public class AddFragment extends Fragment {
     public void onDestroyView() {
         super.onDestroyView();
         binding = null;
+    }
+
+    private void importCSV() {
+        String filePathAndName = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS) + "/" + "RoomDB_Backup.csv";
+        File csvFile = new File(filePathAndName);
+
+        if (csvFile.exists()) {
+            try {
+                CSVReader csvReader = new CSVReader(new FileReader(csvFile.getAbsoluteFile()));
+                String[] nextLine;
+                while ((nextLine = csvReader.readNext()) != null) {
+                    String nama = nextLine[0];
+                    String nama_penerima = nextLine[1];
+                    String nominal = nextLine[2];
+                    String deskripsi = nextLine[3];
+
+                    KwitansiDB db = Room.databaseBuilder(getContext(), KwitansiDB.class, "KwitansiDB").allowMainThreadQueries().build();
+                    KwitansiDAO kwitansiDAO = db.getKwitansiDAO();
+                    kwitansiDAO.addKwitansi(new KwitansiEntity(nama, nama_penerima, nominal, deskripsi));
+                }
+                Toast.makeText(getContext(), "Backup Restored", Toast.LENGTH_SHORT).show();
+            } catch (Exception e) {
+                Toast.makeText(getContext(), "" + e.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        } else {
+            Toast.makeText(getContext(), "Tidak Ada Backup Ditemukan", Toast.LENGTH_SHORT).show();
+        }
     }
 
     public void doPrint(View view, String id, String nama, String nama1, String nominal, String deskripsi) {
